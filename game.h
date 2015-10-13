@@ -17,8 +17,11 @@
 #define GAME_H
 
 #include <iostream>
-#define PLAYER_WIDTH 5
-#define PLAYER_HEIGHT 20
+//#define PLAYER_WIDTH 5
+//#define PLAYER_WIDTH 20
+
+int PLAYER_WIDTH;
+int PLAYER_HEIGHT;
 
 using std::cout;
 using std::endl;
@@ -58,8 +61,7 @@ class Game
 		{
 			setPos(30,20);
 			setAccel(0,0);
-			player.width = PLAYER_WIDTH;
-			player.height = PLAYER_HEIGHT;
+
 			accelY(-1);
 			if_jump = false;
 			if_hit = false;
@@ -99,6 +101,8 @@ class Game
 		{
 			window_width = x;
 			window_height = y;
+			player.width = window_height*0.01;
+			player.height = window_height*0.05;
 		}
 		
 		void setPos(float x = 0, float y = 0)
