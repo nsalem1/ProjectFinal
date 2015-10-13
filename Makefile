@@ -1,12 +1,11 @@
-# cs335 hw1
+# cs335 Final Project
 # to compile your project, type make and press enter
 
-all: game
+all: main
 
-game: game.cpp
-	g++ game.cpp libggfonts.a -Wall -ogame -lX11 -lGL -lGLU -lm
+main: main.cpp
+	g++ main.cpp libggfonts.a -Wall -omain -lX11 -lGL -lGLU -lm
 
 clean:
-	rm -f game
+	rm -f main
 	rm -f *.o
-
