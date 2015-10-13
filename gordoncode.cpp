@@ -1,6 +1,10 @@
 //#ifdef OPENGLFUNC_CPP
 //#define OPENGLFUNC_CPP
 
+
+#include <ctime>
+#include <cstring> // memcpy()
+
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
@@ -8,18 +12,63 @@
 #include <iostream> 
 #include <cstdlib> // EXIT macro
 
+
+//-----------------------------------------------------------------------------
+//Setup timers
+const double physicsRate = 1.0 / 60.0;
+const double oobillion = 1.0 / 1e9;
+struct timespec timeStart, timeCurrent;
+struct timespec timePause;
+double physicsCountdown=0.0;
+double timeSpan=0.0;
+//unsigned int upause=0;
+double timeDiff(struct timespec *start, struct timespec *end) {
+	return (double)(end->tv_sec - start->tv_sec ) +
+			(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+}
+void timeCopy(struct timespec *dest, struct timespec *source) {
+	memcpy(dest, source, sizeof(struct timespec));
+}
+//-----------------------------------------------------------------------------
+
+
+
 //X Windows variables
 Display *dpy;
 Window win;
 GLXContext glc;
 
-// set title here
 void set_title(void)
 {
 	//Set the window title bar.
 	XMapWindow(dpy, win);
 	XStoreName(dpy, win, "Game");
 }
+
+void cleanupXWindows(void) {
+	//do not change
+	XDestroyWindow(dpy, win);
+	XCloseDisplay(dpy);
+}
+
+void setup_screen_res(const int w, const int h)
+{
+	window_width = w;
+	window_height = h;
+}
+
+void reshape_window(int width, int height)
+{
+	//window has been resized.
+	setup_screen_res(width, height);
+	//
+	glViewport(0, 0, (GLint)width, (GLint)height);
+	glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	glOrtho(0, window_width, 0, window_height, -1, 1);
+	set_title();
+}
+
 
 void initXWindows(void) 
 {
@@ -76,5 +125,8 @@ void check_resize(XEvent *e)
 		reshape_window(xce.width, xce.height);
 	}
 }
+
+
+
 
 //#endif
