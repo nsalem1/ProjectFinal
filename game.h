@@ -16,10 +16,12 @@
 #ifndef GAME_H
 #define GAME_H
 
-
+#include <iostream>
 #define PLAYER_WIDTH 5
 #define PLAYER_HEIGHT 20
 
+using std::cout;
+using std::endl;
 
 struct Vec
 {
@@ -48,6 +50,7 @@ class Game
 		bool run; // runs main loop
 		int window_height;
 		int window_width;
+		int gravity;
 	
 		// platform object?	
 
@@ -57,10 +60,29 @@ class Game
 			setAccel(0,0);
 			player.width = PLAYER_WIDTH;
 			player.height = PLAYER_HEIGHT;
-			
+			accelY(-1);
 			if_jump = false;
 			if_hit = false;
 			run = true;
+		}
+		
+		// if the player is in the air, deny multiple jumps
+		void inAir()
+		{
+			if(player.position.y > 0 && if_jump == true)
+				if_jump = false;
+		}
+		
+		void applyGravity()
+		{
+			if(player.position.y - player.height > 0)
+				accelY(-0.25 * gravity);
+			
+		}
+		
+		void setGravity(int g)
+		{
+			gravity = g;
 		}
 		
 		float velY()
@@ -123,7 +145,7 @@ class Game
 			// bottom of screen, allow double jump
 			if(player.position.y - player.height <= 0)
 			{
-				setPosY(player.height);
+				setPosY(player.height );
 				setAccel(velX(),0);
 				if_jump = true;
 			}
@@ -142,6 +164,8 @@ class Game
 				setAccel(0,velY());
 			}
 		}
+		
+		// more collision checking with rect platforms??!?!
 
 };
 
