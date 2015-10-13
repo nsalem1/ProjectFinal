@@ -19,7 +19,7 @@
 
 #define PLAYER_WIDTH 5
 #define PLAYER_HEIGHT 20
-#define GRAVITY 1
+
 
 struct Vec
 {
@@ -53,14 +53,24 @@ class Game
 
 		Game()
 		{
-			player.position.x = 30;
-			player.position.y = 20;
+			setPos(30,20);
+			setAccel(0,0);
 			player.width = PLAYER_WIDTH;
 			player.height = PLAYER_HEIGHT;
 			
 			if_jump = false;
 			if_hit = false;
 			run = true;
+		}
+		
+		float velY()
+		{
+			return player.velocity.y;
+		}
+		
+		float velX()
+		{
+			return player.velocity.x;
 		}
 		
 		void setResolution(int x, int y)
@@ -85,7 +95,7 @@ class Game
 			player.position.y = y;
 		}
 		
-		void accel(float x, float y)
+		void setAccel(float x, float y)
 		{
 			player.velocity.x = x;
 			player.velocity.y = y;
@@ -93,12 +103,12 @@ class Game
 		
 		void accelX(float x)
 		{
-			player.velocity.x = x;
+			player.velocity.x += x;
 		}
 		
 		void accelY(float y)
 		{
-			player.velocity.y = y;
+			player.velocity.y += y;
 		}
 		
 		void move()
@@ -114,21 +124,22 @@ class Game
 			if(player.position.y - player.height <= 0)
 			{
 				setPosY(player.height);
+				setAccel(velX(),0);
 				if_jump = true;
 			}
 			
-			// left side of screen
+			// right side of screen
 			if(player.position.x > window_width)
 			{
-				setPosX(player.width);
-				accelX(0);
+				setPosX(window_width - player.width);
+				setAccel(0,velY());
 			}	
 			
-			// right side of screen
+			// left side of screen
 			if(player.position.x <= 0)
 			{
-				setPosX(0);
-				accelX(0);
+				setPosX(player.width);
+				setAccel(0,velY());
 			}
 		}
 
