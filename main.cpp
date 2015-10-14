@@ -22,7 +22,7 @@ int window_height = 600;
 int keys[6];
 // 0 - a left
 // 1 - w up
-// 2 - d left
+// 2 - d right
 // 3 - s down
 // 4 - spacebar
 // 5 - null movement/kill accel
@@ -30,11 +30,14 @@ int keys[6];
 // Gordon's timer & x11/opengl code
 #include "gordoncode.cpp"
 
+//#include "test.cpp"
 
 int check_keys(XEvent *e, Game * game);
 
 // move/collision/accel calls
 void physics(Game * game);
+
+
 void render(Game * game);
 
 
@@ -42,9 +45,8 @@ using std::cout;
 using std::endl;
 
 
-
 #define GRAVITY 1
-#define MAX_VELOCITY 14
+#define MAX_VELOCITY 20
 #define INITIAL_VELOCITY 5
 
 int main()
@@ -58,6 +60,7 @@ int main()
 	
 	game.setGravity(GRAVITY);
 	
+	// set players position
 	game.setPos(window_width/2, window_height/2);
 	
 	game.setResolution(window_width, window_height);
@@ -77,6 +80,9 @@ int main()
 			XNextEvent(dpy, &e);
 			check_keys(&e, &game);
 			check_resize(&e);
+			
+			// if window resets, then the game should handle this event
+			game.setResolution(window_width, window_height);
 		}
 		
 		// asteroids timer
@@ -86,11 +92,11 @@ int main()
 		physicsCountdown += timeSpan;
 		
 		
+		// check for collisions, move player
 		while(physicsCountdown >= physicsRate) {
 			physics(&game);
 			physicsCountdown -= physicsRate;
 		}
-
 		render(&game);
 		glXSwapBuffers(dpy, win);
 	}	
@@ -103,7 +109,11 @@ int main()
 }
 
 
-
+// TODO!
+// -----------------------
+// Kind of working! 
+// Needs to check if key pressed is later released, Example user presses LEFT then lets go,
+// the code then should kill movement on the x axis
 int check_keys(XEvent *e, Game * game)
 {
 	int key = XLookupKeysym(&e->xkey, 0);
@@ -161,55 +171,65 @@ int check_keys(XEvent *e, Game * game)
 	return 0;
 }
 
+
+// checks if the player is in the air, hits a screen edge, 
+// and handles player speed and movement
 void physics(Game * game)
 {
 	
+
 	game->inAir(); 
 	game->applyGravity();
 	game->checkscreenedge();
-	
+
 	if(keys[0]) // left
 	{
 		game->accelX(-1 * INITIAL_VELOCITY);
 	}
-	if(keys[1]) // up
-	{
-		//game->accelY(INITIAL_VELOCITY);
-	}
+
 	if(keys[2]) // right
 	{
 		game->accelX(INITIAL_VELOCITY);
 	}
-	if(keys[3]) // down
-	{
-		//game->accelY(-1 * INITIAL_VELOCITY);
-	}
+
 	if(keys[4] && game->if_jump) // spacebar
 	{
 		cout << "jump" <<endl;
 		game->accelY(2 * INITIAL_VELOCITY);
 	}
 	
+
+	if(keys[5]) // kill movement
+		game->player.velocity.x = 0;
+
+	
+
 	if(game->velX() > MAX_VELOCITY)
 		game->player.velocity.x = MAX_VELOCITY;
 	if(game->velX() < -1 * MAX_VELOCITY)
 		game->player.velocity.x = -1 * MAX_VELOCITY;
-	
-	
-	if(keys[5]) // kill movement
-		game->player.velocity.x = 0;
+		
 	
 	game->move();
+
 }
 
 void render(Game * game)
 {
+
+	glClearColor(0, 0, 0, 1.0);
+	//if(!game->if_jump)
+	//	glClearColor(0 + game->velY()/20.0, 0 + game->velY()/20.0, 1, 1.0);
+
+
 	float w, h;
 	glClear(GL_COLOR_BUFFER_BIT);
 	
 	//draw guy/rectangle
 	glColor3ub(90,140,90);
 
+	
+	
 	glPushMatrix();
 	glTranslatef(game->player.position.x, game->player.position.y, 0);
 	w = game->player.width;
@@ -222,10 +242,10 @@ void render(Game * game)
 	glEnd();
 	glPopMatrix();
 	
-	//draw guy x,y position
+	//draw guy's (x,y) center coordinates
 	glPushMatrix();
-	glColor3ub(255,0,0);
-
+	glColor3ub(0,0,255);
+	
 	int x = game->player.position.x;
 	int y = game->player.position.y;
 	w = 2;
