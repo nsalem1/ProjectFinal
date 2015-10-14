@@ -46,7 +46,7 @@ using std::endl;
 
 
 #define GRAVITY 1
-#define MAX_VELOCITY 20
+#define MAX_VELOCITY 10
 #define INITIAL_VELOCITY 5
 
 int main()
@@ -91,13 +91,13 @@ int main()
 		timeCopy(&timeStart, &timeCurrent);
 		physicsCountdown += timeSpan;
 		
-		
+	
 		// check for collisions, move player
 		while(physicsCountdown >= physicsRate) {
 			physics(&game);
 			physicsCountdown -= physicsRate;
 		}
-		game.checkscreenedge();
+		
 		render(&game);
 		glXSwapBuffers(dpy, win);
 	}	
@@ -125,8 +125,9 @@ int check_keys(XEvent *e, Game * game)
 	// 2 - d right
 	// 3 - s down
 	// 4 - spacebar
+	// 5 - kill movement
 	
-	keys[5] = 1; // null movement unless key pressed
+	keys[5] = 1; // null movement on x axis only
 	
 	if(e->type == KeyRelease) 
 	{
@@ -169,6 +170,9 @@ int check_keys(XEvent *e, Game * game)
 		keys[5] = 0;
 	}
 	
+	
+	
+	
 	return 0;
 }
 
@@ -202,11 +206,11 @@ void physics(Game * game)
 	}
 	
 	
-	if(keys[5]) // kill movement
+	if(keys[5] && game->inAir()) // kill movement on x axis only
 		game->player.velocity.x = 0;
-
 	
-
+	
+	
 	if(game->velX() > MAX_VELOCITY)
 		game->player.velocity.x = MAX_VELOCITY;
 	if(game->velX() < -1 * MAX_VELOCITY)
@@ -216,6 +220,8 @@ void physics(Game * game)
 	game->move();
 
 }
+
+
 
 void render(Game * game)
 {

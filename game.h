@@ -112,10 +112,14 @@ class Game
 		}*/
 		
 		// if the player is in the air, deny multiple jumps
-		void inAir()
+		bool inAir()
 		{
 			if(player.position.y > 0 && if_jump == true)
+			{
 				if_jump = false;
+				return true;
+			}
+			return false;
 		}
 		
 		// NEEDS WORK
@@ -219,14 +223,14 @@ class Game
 			if(player.position.x + player.width >= window_width)
 			{
 				setPosX(window_width - player.width);
-				setAccel(0,velY());
+				setAccel(-1*velX(),velY());
 			}	
 			
 			// left side of screen
 			if(player.position.x - player.width <= 0)
 			{
 				setPosX(player.width);
-				setAccel(0,velY());
+				setAccel(-1*velX(),velY());
 			}
 		}
 		
