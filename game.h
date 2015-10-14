@@ -53,6 +53,17 @@ struct Powerup
 };
 
 
+struct Shape {
+	float width, height;
+	float radius;
+	Vec center;
+};
+
+struct Particle {
+	Shape s;
+	Vec velocity;
+};
+
 class Game
 {
 
@@ -65,7 +76,7 @@ class Game
 		bool run; // runs main loop
 		int window_height;
 		int window_width;
-		int gravity;
+		int gravity; // default is gonna be 1 unless set otherwise
 		int powerupTimer; // in seconds
 		
 		Powerup * powerups;
@@ -74,8 +85,9 @@ class Game
 
 		Game()
 		{
-			setPos(30,20);
+			setPos(30,1000);
 			setAccel(0,0);
+			gravity = 1;
 
 			powerupTimer = 14;
 			
@@ -129,7 +141,7 @@ class Game
 		{
 			if(player.position.y - player.height > 0)
 				accelY(-0.25 * gravity);
-			
+				//accelY(-1 * gravity);
 			
 			
 			Powerup * p = powerups;
