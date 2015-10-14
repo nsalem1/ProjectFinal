@@ -40,6 +40,18 @@ struct Guy
 	int height;
 };
 
+struct Powerup
+{
+	Vec position;
+	Vec velocity;
+	int width;
+	int height;
+
+	
+	Powerup * next = NULL;
+	Powerup * previous = NULL;
+};
+
 
 class Game
 {
@@ -54,6 +66,9 @@ class Game
 		int window_height;
 		int window_width;
 		int gravity;
+		int powerupTimer; // in seconds
+		
+		Powerup * powerups;
 	
 		// platform object?	
 
@@ -62,11 +77,39 @@ class Game
 			setPos(30,20);
 			setAccel(0,0);
 
+			powerupTimer = 14;
+			
+			powerups = NULL;
+			
 			accelY(-1);
 			if_jump = false;
 			if_hit = false;
 			run = true;
 		}
+		
+
+		/*
+		void addPowerup()
+		{
+			int x = RANDOM;
+			iny y = window_height;
+			
+			int width = window_width * 0.02; 
+			int height = window_height * 0.02;
+			
+			if(powerups == NULL)
+			{
+				powerups = new Powerup();
+				powerups->position, 
+				return;
+			}
+			
+			Powerup * p = powerups;
+			while(p != NULL)
+				p = p->next;
+			
+			p = new Powerup();
+		}*/
 		
 		// if the player is in the air, deny multiple jumps
 		void inAir()
@@ -75,11 +118,23 @@ class Game
 				if_jump = false;
 		}
 		
+		// NEEDS WORK
+		// forces down the player and powerups down screen
+		// until there is a collision?
 		void applyGravity()
 		{
 			if(player.position.y - player.height > 0)
 				accelY(-0.25 * gravity);
 			
+			
+			
+			Powerup * p = powerups;
+			while(p != NULL)
+			{
+				if(p->position.y - p->height > 0)
+					p->velocity.y += -0.25 * gravity;
+				p = p->next;
+			}
 		}
 		
 		void setGravity(int g)
@@ -143,26 +198,32 @@ class Game
 			player.position.y += player.velocity.y;
 		}
 		
+		
+		// TODO!
+		// ----------------------------------------------
+		// not fully working on the edges of the screen?
+		// check user input before movement?
+		// -----------------------------------------
 		// collision bottom and left/right of screen
 		void checkscreenedge()
 		{
 			// bottom of screen, allow double jump
-			if(player.position.y - player.height <= 0)
+			if(player.position.y - player.height <= 0) // WORKS!!!
 			{
-				setPosY(player.height );
+				setPosY(player.height);
 				setAccel(velX(),0);
 				if_jump = true;
 			}
 			
 			// right side of screen
-			if(player.position.x > window_width)
+			if(player.position.x + player.width >= window_width)
 			{
 				setPosX(window_width - player.width);
 				setAccel(0,velY());
 			}	
 			
 			// left side of screen
-			if(player.position.x <= 0)
+			if(player.position.x - player.width <= 0)
 			{
 				setPosX(player.width);
 				setAccel(0,velY());

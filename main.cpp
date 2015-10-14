@@ -97,6 +97,7 @@ int main()
 			physics(&game);
 			physicsCountdown -= physicsRate;
 		}
+		game.checkscreenedge();
 		render(&game);
 		glXSwapBuffers(dpy, win);
 	}	
@@ -184,12 +185,14 @@ void physics(Game * game)
 
 	if(keys[0]) // left
 	{
+		cout << "left" << endl;
 		game->accelX(-1 * INITIAL_VELOCITY);
 	}
 
 	if(keys[2]) // right
 	{
-		game->accelX(INITIAL_VELOCITY);
+		cout << "right" << endl;
+ 		game->accelX(INITIAL_VELOCITY);
 	}
 
 	if(keys[4] && game->if_jump) // spacebar
@@ -198,7 +201,7 @@ void physics(Game * game)
 		game->accelY(2 * INITIAL_VELOCITY);
 	}
 	
-
+	
 	if(keys[5]) // kill movement
 		game->player.velocity.x = 0;
 
