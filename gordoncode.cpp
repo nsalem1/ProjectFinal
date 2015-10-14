@@ -9,6 +9,16 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 
+
+#include <cstring>
+#include <unistd.h>
+extern "C" {
+#include "fonts.h"
+}
+
+
+#include "ppm.h"
+
 #include <iostream> 
 #include <cstdlib> // EXIT macro
 
@@ -31,7 +41,8 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 }
 //-----------------------------------------------------------------------------
 
-
+Ppmimage *background = NULL;
+GLuint backgroundTexture;
 
 //X Windows variables
 Display *dpy;
@@ -98,20 +109,10 @@ void initXWindows(void)
 	set_title();
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 	glXMakeCurrent(dpy, win, glc);
+	
+
 }
 
-void init_opengl(void)
-{
-	//OpenGL initialization
-	glViewport(0, 0, window_width, window_height);
-	//Initialize matrices
-	glMatrixMode(GL_PROJECTION); glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-	//Set 2D mode (no perspective)
-	glOrtho(0, window_width, 0, window_height, -1, 1);
-	//Set the screen background color
-	glClearColor(0.1, 0.1, 0.1, 1.0);
-}
 
 void check_resize(XEvent *e)
 {
@@ -126,6 +127,93 @@ void check_resize(XEvent *e)
 	}
 }
 
+
+/// IMAGE TEXTURE STUFF
+
+unsigned char *buildAlphaData(Ppmimage *img)
+{
+	//add 4th component to RGB stream...
+	int a,b,c;
+	unsigned char *newdata, *ptr;
+	unsigned char *data = (unsigned char *)img->data;
+	//newdata = (unsigned char *)malloc(img->width * img->height * 4);
+	newdata = new unsigned char[img->width * img->height * 4];
+	ptr = newdata;
+	for (int i=0; i<img->width * img->height * 3; i+=3) {
+		a = *(data+0);
+		b = *(data+1);
+		c = *(data+2);
+		*(ptr+0) = a;
+		*(ptr+1) = b;
+		*(ptr+2) = c;
+		//
+		//get the alpha value
+		//
+		//original code
+		//get largest color component...
+		//*(ptr+3) = (unsigned char)((
+		//		(int)*(ptr+0) +
+		//		(int)*(ptr+1) +
+		//		(int)*(ptr+2)) / 3);
+		//d = a;
+		//if (b >= a && b >= c) d = b;
+		//if (c >= a && c >= b) d = c;
+		//*(ptr+3) = d;
+		//
+		//new code, suggested by Chris Smith, Fall 2013
+		*(ptr+3) = (a|b|c);
+		//
+		ptr += 4;
+		data += 3;
+	}
+	return newdata;
+}
+
+
+
+
+
+void init_opengl(void)
+{
+	//OpenGL initialization
+	glViewport(0, 0, window_width, window_height);
+	//Initialize matrices
+	glMatrixMode(GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	//Set 2D mode (no perspective)
+	glOrtho(0, window_width, 0, window_height, -1, 1);
+
+
+	
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_FOG);
+	glDisable(GL_CULL_FACE);
+	
+	//Set the screen background color
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	
+		//Do this to allow fonts
+	glEnable(GL_TEXTURE_2D);
+	initialize_fonts();
+
+	// load image from ppm structure
+	background = ppm6GetImage("./images/background.ppm");
+	
+	// create texture
+	glGenTextures(1, &backgroundTexture);
+	
+	// Game background
+	glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3,
+					background->width, background->height,
+					0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
+	
+	
+	
+}
 
 
 
