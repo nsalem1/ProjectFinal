@@ -10,7 +10,7 @@
 #include <GL/glx.h>
 
 
-#include <cstring>
+
 #include <unistd.h>
 extern "C" {
 #include "fonts.h"
@@ -41,8 +41,7 @@ void timeCopy(struct timespec *dest, struct timespec *source) {
 }
 //-----------------------------------------------------------------------------
 
-Ppmimage *background = NULL;
-GLuint backgroundTexture;
+
 
 //X Windows variables
 Display *dpy;
@@ -193,26 +192,10 @@ void init_opengl(void)
 	//Set the screen background color
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	
-		//Do this to allow fonts
+	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
 
-	// load image from ppm structure
-	background = ppm6GetImage("./images/background.ppm");
-	
-	// create texture
-	glGenTextures(1, &backgroundTexture);
-	
-	// Game background
-	glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3,
-					background->width, background->height,
-					0, GL_RGB, GL_UNSIGNED_BYTE, background->data);
-	
-	
-	
 }
 
 

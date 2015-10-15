@@ -19,8 +19,6 @@
 #include <iostream>
 
 
-
-
 using std::cout;
 using std::endl;
 
@@ -30,13 +28,7 @@ struct Vec
 	float y;
 };
 
-struct Guy
-{
-	Vec position;
-	Vec velocity;
-	int width;
-	int height;
-};
+
 
 struct Powerup
 {
@@ -62,6 +54,19 @@ struct Particle {
 	Vec velocity;
 };
 
+
+
+
+struct Guy
+{
+	bool left;
+	bool right;
+	Vec position;
+	Vec velocity;
+	int width;
+	int height;
+};
+
 class Game
 {
 	public:	
@@ -70,10 +75,13 @@ class Game
 		bool if_hit; // collision then true, 
 		bool if_jump; // if true allow jumping
 		bool run; // runs main loop
+		
 		int window_height;
 		int window_width;
 		int gravity; // default is gonna be 1 unless set otherwise
 		int powerupTimer; // in seconds
+		
+		
 		
 		Powerup * powerups;
 	

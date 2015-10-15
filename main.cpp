@@ -26,6 +26,9 @@ bool killmovement = false;
 // Gordon's timer & x11/opengl code
 #include "gordoncode.cpp"
 
+// game textures/sprite
+#include "textures.cpp"
+
 
 // used for fps counter
 int frames = 0;
@@ -59,6 +62,7 @@ int main()
 {
 	initXWindows();
 	init_opengl();
+	loadTextures(); 
 	
 	cout << "start game" << endl;
 	
@@ -73,8 +77,6 @@ int main()
 	
 	
 	srand(time(NULL));
-	
-
 	
 	clock_gettime(CLOCK_REALTIME, &timePause);
 	clock_gettime(CLOCK_REALTIME, &timeStart);
@@ -105,22 +107,24 @@ int main()
 		// check for collisions, move player
 		while(physicsCountdown >= physicsRate) {
 			physics(&game);
+				
 			physicsCountdown -= physicsRate;
 		}
 		
-		if(frames > 100)
+		
+		if(frames > 10)
 		{
 			clock_gettime(CLOCK_REALTIME, &start);
 			frames = 0;
 		}
 		frames++;
-		
+			
 		render(&game);
 		glXSwapBuffers(dpy, win);
 	}	
 	
 	cleanupXWindows();
-	//cleanup_fonts();
+	cleanup_fonts();
 	
 	cout << "end game" << endl;
 	return 0;
@@ -230,19 +234,26 @@ void check_mouse(XEvent *e, Game *game)
 void physics(Game * game)
 {
 	
-	
 	game->inAir(); 
 	game->applyGravity();
 	game->checkBottomScreen();
 
 	if(keys[XK_Left]) // left
 	{
+		game->player.right = false;
+		game->player.left = true;
+		if(frames == 3)
+			frame += 0.1;
 		//cout << "left" << endl;
 		game->accelX(-1 * INITIAL_VELOCITY);
 	}
 
 	if(keys[XK_Right]) // right
 	{
+		game->player.left = false;
+		game->player.right = true;
+		if(frames == 3)
+			frame += 0.1;
 		//cout << "right" << endl;
  		game->accelX(INITIAL_VELOCITY);
 	}
@@ -309,77 +320,84 @@ void physics(Game * game)
 void render(Game * game)
 {
 
+
 	glClearColor(0, 0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	
+	// makes sure not to draw past window edges!
+	game->checkRightScreenHit();
+	game->checkLeftScreenHit();
+	
+	
+		float w, h;
+	int x,y;
+	
 	// texture
 	if(setbackground)
-	
 	{
 		glColor3f(1.0, 1.0, 1.0);
-	glBindTexture(GL_TEXTURE_2D, backgroundTexture);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,1);
-		glVertex2i(0,0);
-	glTexCoord2f(0,0);
-		glVertex2i(0, window_height);
-	glTexCoord2f(1,0);
-		glVertex2i(window_width, window_height);
-	glTexCoord2f(1,1);
-		glVertex2i(window_width, 0);
-	glEnd();
-	
-	
-	// need this else visual error
-	glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0,1);
+			glVertex2i(0,0);
+		glTexCoord2f(0,0);
+			glVertex2i(0, window_height);
+		glTexCoord2f(1,0);
+			glVertex2i(window_width, window_height);
+		glTexCoord2f(1,1);
+			glVertex2i(window_width, 0);
+		glEnd();
+		
+		drawSkeleton(game);
 	}
 	
-	// fps counter
+	
+	// TEXT
 	Rect r;
 	r.bot = window_height - 20;
 	r.left = 10;
 	r.center = 0;
-	ggprint8b(&r, 16, 0x00FFFF00, "fps: %f", frames/timeDiff(&start, &timeCurrent));
+	ggprint8b(&r, 16, 0x00FFFF00, "fps: %i",  static_cast<int>(frames/timeDiff(&start, &timeCurrent)));
 	ggprint8b(&r, 16, 0x00FFFF00, "PhysicsRate: %i", static_cast<int>(1/physicsRate));
 	ggprint8b(&r, 16, 0x00FFFF00, "water particles: %i", numParticles);
-	
-	
-	
-	//draw guy/rectangle
-	game->checkRightScreenHit();
-	game->checkLeftScreenHit();
+	ggprint8b(&r, 16, 0x00FFFF00, "Hit sides: %i", game->checkLeftScreenHit() || game->checkRightScreenHit());
 	
 
-	float w, h;
-	glColor3ub(222,10,90);
-	glPushMatrix();
-	glTranslatef(game->player.position.x, game->player.position.y, 0);
-	w = game->player.width;
-	h = game->player.height;
-	glBegin(GL_QUADS);
-	glVertex2i(-w,-h);
-	glVertex2i(-w, h);
-	glVertex2i( w, h);
-	glVertex2i( w,-h);
-	glEnd();
-	glPopMatrix();
 	
-	//draw guy's (x,y) center coordinates
-	glColor3ub(0,0,255);
-	glPushMatrix();
-	int x = game->player.position.x;
-	int y = game->player.position.y;
-	w = 2;
-	h = 2;
-	glBegin(GL_QUADS);
-	glVertex2i(x-w, y-h);
-	glVertex2i(x-w, y+h);
-	glVertex2i(x+w, y+h);
-	glVertex2i(x+w, y-h);
-	glEnd();
-	glPopMatrix();
-
+	if(!setbackground)
+	{
+		
+		//draw guy/rectangle
 	
+		glColor3ub(222,10,90);
+		glPushMatrix();
+		glTranslatef(game->player.position.x, game->player.position.y, 0);
+		w = game->player.width;
+		h = game->player.height;
+		glBegin(GL_QUADS);
+		glVertex2i(-w,-h);
+		glVertex2i(-w, h);
+		glVertex2i( w, h);
+		glVertex2i( w,-h);
+		glEnd();
+		glPopMatrix();
+		
+		//draw guy's (x,y) center coordinates
+		glColor3ub(0,0,255);
+		glPushMatrix();
+		x = game->player.position.x;
+		y = game->player.position.y;
+		w = 2;
+		h = 2;
+		glBegin(GL_QUADS);
+		glVertex2i(x-w, y-h);
+		glVertex2i(x-w, y+h);
+		glVertex2i(x+w, y+h);
+		glVertex2i(x+w, y-h);
+		glEnd();
+		glPopMatrix();
+	}
 	// draw particles 
 	int randColorWater = 0;
 	for(int i = 0; i < numParticles; ++i){
@@ -402,4 +420,8 @@ void render(Game * game)
 		randColorWater+= 10; 
 	}
 
+	
+
+	
+	
 }

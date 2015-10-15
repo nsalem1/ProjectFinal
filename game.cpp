@@ -153,7 +153,7 @@ void Game::checkBottomScreen()
 bool Game::checkLeftScreenHit()
 {
 	// left side of screen
-	if(player.position.x - player.width < 0)
+	if(player.position.x - player.width <= 0)
 	{
 		setPosX(player.width);
 		return true;
