@@ -53,6 +53,7 @@ using std::endl;
 Particle par[MAX_PARTICLES];
 int numParticles = 0;
 bool bubbler = false;
+bool setbackground = false;
 
 int main()
 {
@@ -161,6 +162,11 @@ int check_keys(XEvent *e, Game * game)
 				bubbler = true;
 		}	
 		
+		if(key == XK_w)
+			if(setbackground)
+				setbackground = false;
+			else 
+				setbackground = true;
 		
 	}	
 	return 0;
@@ -223,10 +229,10 @@ void check_mouse(XEvent *e, Game *game)
 void physics(Game * game)
 {
 	
-
+	
 	game->inAir(); 
 	game->applyGravity();
-	game->checkscreenedge();
+	game->checkBottomScreen();
 
 	if(keys[XK_Left]) // left
 	{
@@ -256,6 +262,8 @@ void physics(Game * game)
 	if(game->velX() < -1 * MAX_VELOCITY)
 		game->player.velocity.x = -1 * MAX_VELOCITY;
 		
+	
+
 	
 	game->move();
 	
@@ -300,11 +308,14 @@ void physics(Game * game)
 void render(Game * game)
 {
 
-	glClearColor(1, 1, 1, 1.0);
+	glClearColor(0, 0, 0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// texture
-	glColor3f(1.0, 1.0, 1.0);
+	if(setbackground)
+	
+	{
+		glColor3f(1.0, 1.0, 1.0);
 	glBindTexture(GL_TEXTURE_2D, backgroundTexture);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0,1);
@@ -316,11 +327,11 @@ void render(Game * game)
 	glTexCoord2f(1,1);
 		glVertex2i(window_width, 0);
 	glEnd();
-
+	
 	
 	// need this else visual error
 	glEnable(GL_TEXTURE_2D);
-	
+	}
 	
 	// fps counter
 	Rect r;
@@ -331,7 +342,13 @@ void render(Game * game)
 	ggprint8b(&r, 16, 0x00FFFF00, "PhysicsRate: %i", static_cast<int>(1/physicsRate));
 	ggprint8b(&r, 16, 0x00FFFF00, "water particles: %i", numParticles);
 	
+	
+	
 	//draw guy/rectangle
+	game->checkRightScreenHit();
+	game->checkLeftScreenHit();
+	
+
 	float w, h;
 	glColor3ub(222,10,90);
 	glPushMatrix();

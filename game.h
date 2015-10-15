@@ -71,6 +71,7 @@ class Game
 
 	public:	
 		Guy player;	
+
 		bool if_hit; // collision then true, 
 		bool if_jump; // if true allow jumping
 		bool run; // runs main loop
@@ -215,13 +216,12 @@ class Game
 		}
 		
 		
-		// TODO!
+
 		// ----------------------------------------------
-		// not fully working on the edges of the screen?
-		// check user input before movement?
+
 		// -----------------------------------------
-		// collision bottom and left/right of screen
-		void checkscreenedge()
+		// collision bottom 
+		void checkBottomScreen()
 		{
 			// bottom of screen, allow double jump
 			if(player.position.y - player.height <= 0) // WORKS!!!
@@ -231,19 +231,28 @@ class Game
 				if_jump = true;
 			}
 			
-			// right side of screen
+		}
+		
+		bool checkLeftScreenHit()
+		{
+			// left side of screen
+			if(player.position.x - player.width < 0)
+			{
+				setPosX(player.width);
+				return true;
+			}
+			return false;
+		}
+		
+		bool checkRightScreenHit()
+		{
+							// right side of screen
 			if(player.position.x + player.width >= window_width)
 			{
 				setPosX(window_width - player.width);
-				setAccel(-1*velX(),velY());
+				return true;
 			}	
-			
-			// left side of screen
-			if(player.position.x - player.width <= 0)
-			{
-				setPosX(player.width);
-				setAccel(-1*velX(),velY());
-			}
+			return false;
 		}
 		
 		// more collision checking with rect platforms??!?!
