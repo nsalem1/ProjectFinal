@@ -17,11 +17,9 @@
 #define GAME_H
 
 #include <iostream>
-//#define PLAYER_WIDTH 5
-//#define PLAYER_WIDTH 20
 
-int PLAYER_WIDTH;
-int PLAYER_HEIGHT;
+
+
 
 using std::cout;
 using std::endl;
@@ -66,9 +64,6 @@ struct Particle {
 
 class Game
 {
-
-	//private:
-
 	public:	
 		Guy player;	
 
@@ -84,176 +79,48 @@ class Game
 	
 		// platform object?	
 
-		Game()
-		{
-			setPos(30,1000);
-			setAccel(0,0);
-			gravity = 1;
+		// initialized game objects
+		// set player position, etc
+		Game();
 
-			powerupTimer = 14;
-			
-			powerups = NULL;
-			
-			accelY(-1);
-			if_jump = false;
-			if_hit = false;
-			run = true;
-		}
-		
-
-		/*
-		void addPowerup()
-		{
-			int x = RANDOM;
-			iny y = window_height;
-			
-			int width = window_width * 0.02; 
-			int height = window_height * 0.02;
-			
-			if(powerups == NULL)
-			{
-				powerups = new Powerup();
-				powerups->position, 
-				return;
-			}
-			
-			Powerup * p = powerups;
-			while(p != NULL)
-				p = p->next;
-			
-			p = new Powerup();
-		}*/
 		
 		// if the player is in the air, deny multiple jumps
-		bool inAir()
-		{
-			if(player.position.y > 0 && if_jump == true)
-			{
-				if_jump = false;
-				return true;
-			}
-			return false;
-		}
+		bool inAir();
 		
-		// NEEDS WORK
-		// forces down the player and powerups down screen
-		// until there is a collision?
-		void applyGravity()
-		{
-			if(player.position.y - player.height > 0)
-				accelY(-0.25 * gravity);
-				//accelY(-1 * gravity);
-			
-			
-			Powerup * p = powerups;
-			while(p != NULL)
-			{
-				if(p->position.y - p->height > 0)
-					p->velocity.y += -0.25 * gravity;
-				p = p->next;
-			}
-		}
+		// WORKS!
+		void applyGravity();
 		
-		void setGravity(int g)
-		{
-			gravity = g;
-		}
-		
-		float velY()
-		{
-			return player.velocity.y;
-		}
-		
-		float velX()
-		{
-			return player.velocity.x;
-		}
-		
-		void setResolution(int x, int y)
-		{
-			window_width = x;
-			window_height = y;
-			player.width = window_height*0.01;
-			player.height = window_height*0.05;
-		}
-		
-		void setPos(float x = 0, float y = 0)
-		{
-			player.position.x = x;
-			player.position.y = y;
-		}
-		
-		void setPosX(float x)
-		{
-			player.position.x = x;
-		}
-		
-		void setPosY(float y)
-		{
-			player.position.y = y;
-		}
-		
-		void setAccel(float x, float y)
-		{
-			player.velocity.x = x;
-			player.velocity.y = y;
-		}
-		
-		void accelX(float x)
-		{
-			player.velocity.x += x;
-		}
-		
-		void accelY(float y)
-		{
-			player.velocity.y += y;
-		}
-		
-		void move()
-		{
-			player.position.x += player.velocity.x;
-			player.position.y += player.velocity.y;
-		}
+		void setGravity(int g);
 		
 		
+		// return player velocity x/y axis
+		float velY();
+		float velX();
+		
+		// used to handle window resized events
+		void setResolution(int x, int y);
+		
+		// set position of x,y coordinates
+		void setPos(float x, float y);
+		void setPosX(float x);
+		void setPosY(float y);
+		
+		// set the velocity
+		void setAccel(float x, float y);
+		
+		// increases player x/y axis velocity by x/y
+		// velocity += x/y;
+		void accelX(float x);
+		void accelY(float y);
+		
+		
+		// increment x and y position with x and y velocity
+		void move();
 
-		// ----------------------------------------------
 
-		// -----------------------------------------
-		// collision bottom 
-		void checkBottomScreen()
-		{
-			// bottom of screen, allow double jump
-			if(player.position.y - player.height <= 0) // WORKS!!!
-			{
-				setPosY(player.height);
-				setAccel(velX(),0);
-				if_jump = true;
-			}
-			
-		}
-		
-		bool checkLeftScreenHit()
-		{
-			// left side of screen
-			if(player.position.x - player.width < 0)
-			{
-				setPosX(player.width);
-				return true;
-			}
-			return false;
-		}
-		
-		bool checkRightScreenHit()
-		{
-							// right side of screen
-			if(player.position.x + player.width >= window_width)
-			{
-				setPosX(window_width - player.width);
-				return true;
-			}	
-			return false;
-		}
+		void checkBottomScreen();
+		bool checkLeftScreenHit();
+		bool checkRightScreenHit();
 		
 		// more collision checking with rect platforms??!?!
 

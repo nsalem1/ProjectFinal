@@ -163,11 +163,12 @@ int check_keys(XEvent *e, Game * game)
 		}	
 		
 		if(key == XK_w)
+		{
 			if(setbackground)
 				setbackground = false;
 			else 
 				setbackground = true;
-		
+		}
 	}	
 	return 0;
 }

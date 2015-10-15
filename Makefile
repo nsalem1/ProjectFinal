@@ -4,7 +4,7 @@
 all: main
 
 main: main.cpp
-	g++ main.cpp game.h ppm.cpp libggfonts.a -Wall -omain -lX11 -lGL -lGLU -lm
+	g++ main.cpp game.cpp ppm.cpp libggfonts.a -Wall -omain -lX11 -lGL -lGLU -lm
 
 clean:
 	rm -f main
