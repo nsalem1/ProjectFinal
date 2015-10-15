@@ -114,12 +114,12 @@ void drawSkeleton(Game * game)
 		glScalef( -1.0f, 1, 1 );
 	
 	if(game->player.right)
-		glScalef( 1.0f, 1, 1 );
+		glScalef(1.0f, 1, 1 );
 	
 	if(game->player.velocity.y > 0) // up
 		frame = 0.8;
 	
-	if(game->player.velocity.y < 0)
+	if(game->player.velocity.y < 0) // down
 		frame = 0.7;
 	
 	glBegin(GL_QUADS);
