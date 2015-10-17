@@ -62,11 +62,22 @@ int main()
 {
 	initXWindows();
 	init_opengl();
-	loadTextures(); 
+	loadTextures();
+	Game game; 
+	game.n=0;
 	
 	cout << "start game" << endl;
 	
-	Game game;
+	//Declare Platforms
+	for(int i = 0; i < 5; i++)
+	{
+	    game.platform[i].width=50;
+	    game.platform[i].height=10;
+	    game.platform[i].center.x=120+5*65-50*i;
+	    game.platform[i].center.y=500-5*60+30*i;
+	}
+	
+	//Game game;
 	
 	game.setGravity(GRAVITY);
 	
@@ -419,7 +430,25 @@ void render(Game * game)
 		glPopMatrix();	 
 		randColorWater+= 10; 
 	}
-
+	
+	//Draw Platforms
+	Shape *s;
+	glColor3ub(255,255,255);
+	for(int j = 0; j < 5; j++)
+	{
+		s = &game->platform[j];
+		glPushMatrix();
+		glTranslatef(s->center.x,s->center.y, s->center.z);
+		w=s->width;
+		w=s->height;
+		glBegin(GL_QUADS);
+		glVertex2i(-w,-h);
+		glVertex2i(-w,h);
+		glVertex2i(w,h);
+		glVertex2i(w,-h);
+		glEnd();
+		glPopMatrix();
+	}
 	
 
 	

@@ -26,6 +26,7 @@ struct Vec
 {
 	float x;
 	float y;
+	float z;
 };
 
 
@@ -71,16 +72,17 @@ class Game
 {
 	public:	
 		Guy player;	
+		Shape platform[5];
 
 		bool if_hit; // collision then true, 
 		bool if_jump; // if true allow jumping
 		bool run; // runs main loop
-		
+			
 		int window_height;
 		int window_width;
 		int gravity; // default is gonna be 1 unless set otherwise
 		int powerupTimer; // in seconds
-		
+		int n;	
 		
 		
 		Powerup * powerups;
