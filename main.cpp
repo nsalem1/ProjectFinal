@@ -376,11 +376,31 @@ void render(Game * game)
 	
 
 	
+	
+		
+		//draw Platforms
+
+		Shape *s;
+		glColor3ub(255,255,255);
+		for(int j = 0; j < 5; j++)
+		{
+			s = &game->platform[j];
+			glPushMatrix();
+			glTranslatef(s->center.x,s->center.y, s->center.z);
+			w=s->width;
+			h=s->height;
+			glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w,h);
+			glVertex2i(w,h);
+			glVertex2i(w,-h);
+			glEnd();
+			glPopMatrix();
+		}
+
 	if(!setbackground)
 	{
-		
-		//draw guy/rectangle
-	
+		//Draw Guy
 		glColor3ub(222,10,90);
 		glPushMatrix();
 		glTranslatef(game->player.position.x, game->player.position.y, 0);
@@ -432,23 +452,6 @@ void render(Game * game)
 	}
 	
 	//Draw Platforms
-	Shape *s;
-	glColor3ub(255,255,255);
-	for(int j = 0; j < 5; j++)
-	{
-		s = &game->platform[j];
-		glPushMatrix();
-		glTranslatef(s->center.x,s->center.y, s->center.z);
-		w=s->width;
-		w=s->height;
-		glBegin(GL_QUADS);
-		glVertex2i(-w,-h);
-		glVertex2i(-w,h);
-		glVertex2i(w,h);
-		glVertex2i(w,-h);
-		glEnd();
-		glPopMatrix();
-	}
 	
 
 	
