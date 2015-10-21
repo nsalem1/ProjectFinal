@@ -339,9 +339,10 @@ void render(Game * game)
 	// makes sure not to draw past window edges!
 	game->checkRightScreenHit();
 	game->checkLeftScreenHit();
+	//draw Platforms
+
+		
 	
-	
-		float w, h;
 	int x,y;
 	
 	// texture
@@ -362,6 +363,26 @@ void render(Game * game)
 		
 		drawSkeleton(game);
 	}
+Shape *s;
+		glColor3ub(255,255,255);
+	
+	
+		float w, h;
+	for(int j = 0; j < 5; j++)
+		{
+			s = &game->platform[j];
+			glPushMatrix();
+			glTranslatef(s->center.x,s->center.y, s->center.z);
+			w=s->width;
+			h=s->height;
+			glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w,h);
+			glVertex2i(w,h);
+			glVertex2i(w,-h);
+			glEnd();
+			glPopMatrix();
+		}
 	
 	
 	// TEXT
@@ -378,25 +399,7 @@ void render(Game * game)
 	
 	
 		
-		//draw Platforms
-
-		Shape *s;
-		glColor3ub(255,255,255);
-		for(int j = 0; j < 5; j++)
-		{
-			s = &game->platform[j];
-			glPushMatrix();
-			glTranslatef(s->center.x,s->center.y, s->center.z);
-			w=s->width;
-			h=s->height;
-			glBegin(GL_QUADS);
-			glVertex2i(-w,-h);
-			glVertex2i(-w,h);
-			glVertex2i(w,h);
-			glVertex2i(w,-h);
-			glEnd();
-			glPopMatrix();
-		}
+		
 
 	if(!setbackground)
 	{
